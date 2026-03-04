@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} — InventoryPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #1c2128;
+            --border: #30363d;
+            --text-primary: #e6edf3;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.15);
+            --green: #3fb950;
+            --green-bg: rgba(63, 185, 80, 0.12);
+            --yellow: #d29922;
+            --yellow-bg: rgba(210, 153, 34, 0.12);
+            --red: #f85149;
+            --red-bg: rgba(248, 81, 73, 0.12);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        nav {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            height: 60px;
+            gap: 16px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .breadcrumb {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        main {
+            padding: 40px 32px;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .product-hero {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px;
+            margin-bottom: 24px;
+        }
+
+        .hero-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .hero-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .hero-category {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--accent-glow);
+            color: var(--accent);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+        }
+
+        .hero-id {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .hero-price {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .stock-badge.ok {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+
+        .stock-badge.low {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+        }
+
+        .stock-badge.out {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+
+        .stock-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid transparent;
+        }
+
+        .btn-edit {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+            border-color: rgba(210, 153, 34, 0.4);
+        }
+
+        .btn-back {
+            background: transparent;
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.15);
+        }
+
+        .delete-form {
+            display: inline;
+        }
+
+        .delete-form button {
+            background: var(--red-bg);
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            color: var(--red);
+            border: 1px solid rgba(248, 81, 73, 0.4);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .delete-form button:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.15);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-box .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-box .val {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .val.green {
+            color: var(--green);
+        }
+
+        .val.yellow {
+            color: var(--yellow);
+        }
+
+        .val.red {
+            color: var(--red);
+        }
+
+        .val.blue {
+            color: var(--accent);
+            font-size: 16px;
+        }
+
+        .desc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .desc-card h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .desc-card p {
+            color: var(--text-primary);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="{{ url_for('index') }}" class="nav-brand"><span>📦</span> InventoryPro</a>
+        <span class="breadcrumb">/ <a href="{{ url_for('index') }}">Dashboard</a> / {{ product.name }}</span>
+    </nav>
+
+    <main>
+        <div class="product-hero">
+            <div class="hero-top">
+                <div>
+                    <div class="hero-name">{{ product.name }}</div>
+                    <span class="hero-category">{{ product.category }}</span>
+                    <div class="hero-id">Product ID: #{{ product.id }}</div>
+                    <div class="stock-badge {{ product.stock_status }}">
+                        {% if product.stock_status == 'ok' %}In Stock
+                        {% elif product.stock_status == 'low' %}Low Stock
+                        {% else %}Out of Stock{% endif %}
+                    </div>
+                </div>
+                <div class="hero-price">${{ "%.2f"|format(product.price) }}</div>
+            </div>
+            <div class="hero-actions">
+                <a href="{{ url_for('edit_product', id=product.id) }}" class="btn btn-edit">✏️ Edit Product</a>
+                <form class="delete-form" method="POST" action="{{ url_for('delete_product', id=product.id) }}"
+                    onsubmit="return confirm('Permanently delete {{ product.name }}?')">
+                    <button type="submit">🗑 Delete</button>
+                </form>
+                <a href="{{ url_for('index') }}" class="btn btn-back">← Back</a>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="label">Unit Price</div>
+                <div class="val green">${{ "%.2f"|format(product.price) }}</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Stock</div>
+                <div
+                    class="val {% if product.stock == 0 %}red{% elif product.stock < 10 %}yellow{% else %}green{% endif %}">
+                    {{ product.stock }} units</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Total Value</div>
+                <div class="val green">${{ "%.2f"|format(product.total_value) }}</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Category</div>
+                <div class="val blue">{{ product.category }}</div>
+            </div>
+        </div>
+
+        {% if product.description %}
+        <div class="desc-card">
+            <h3>Description</h3>
+            <p>{{ product.description }}</p>
+        </div>
+        {% endif %}
+    </main>
+</body>
+
+</html>

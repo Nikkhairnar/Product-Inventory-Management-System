@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-primary:   #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card:      #1c2128;
+            --bg-hover:     #21262d;
+            --border:       #30363d;
+            --text-primary: #e6edf3;
+            --text-muted:   #8b949e;
+            --accent:       #58a6ff;
+            --accent-glow:  rgba(88,166,255,0.15);
+            --green:        #3fb950;
+            --green-bg:     rgba(63,185,80,0.12);
+            --yellow:       #d29922;
+            --yellow-bg:    rgba(210,153,34,0.12);
+            --red:          #f85149;
+            --red-bg:       rgba(248,81,73,0.12);
+            --purple:       #bc8cff;
+            --purple-bg:    rgba(188,140,255,0.12);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* NAV */
+        nav {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .nav-brand span { font-size: 22px; }
+        .nav-links { display: flex; gap: 8px; align-items: center; }
+        .nav-link {
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .nav-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .nav-link.active { background: var(--accent-glow); color: var(--accent); }
+        .btn-add-nav {
+            background: var(--accent);
+            color: #0d1117;
+            padding: 7px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-add-nav:hover { background: #79b8ff; transform: translateY(-1px); }
+
+        /* MAIN */
+        main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+        /* PAGE HEADER */
+        .page-header {
+            margin-bottom: 28px;
+        }
+        .page-header h1 { font-size: 26px; font-weight: 700; color: var(--text-primary); }
+        .page-header p  { color: var(--text-muted); margin-top: 4px; font-size: 14px; }
+
+        /* DB BADGE */
+        .db-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 8px;
+        }
+        .db-badge .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+        /* FLASH MESSAGES */
+        .flash-container { margin-bottom: 20px; }
+        .flash {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid transparent;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
+        .flash.success { background: var(--green-bg);  border-color: rgba(63,185,80,0.3);  color: #3fb950; }
+        .flash.danger  { background: var(--red-bg);    border-color: rgba(248,81,73,0.3);   color: #f85149; }
+        .flash.warning { background: var(--yellow-bg); border-color: rgba(210,153,34,0.3);  color: #d29922; }
+
+        /* STAT CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s;
+        }
+        .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .stat-icon.blue   { background: var(--accent-glow); }
+        .stat-icon.green  { background: var(--green-bg); }
+        .stat-icon.yellow { background: var(--yellow-bg); }
+        .stat-icon.purple { background: var(--purple-bg); }
+        .stat-info .value { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+        .stat-info .label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        /* TOOLBAR */
+        .toolbar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 9px 12px 9px 36px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { outline: none; border-color: var(--accent); }
+        .search-input::placeholder { color: var(--text-muted); }
+        .filter-select {
+            padding: 9px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .filter-select:focus { outline: none; border-color: var(--accent); }
+        .btn-filter {
+            padding: 9px 18px;
+            background: var(--accent);
+            color: #0d1117;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        .btn-filter:hover { background: #79b8ff; }
+        .btn-clear {
+            padding: 9px 14px;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+        /* TABLE */
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .table-header h2 { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+        .product-count { font-size: 12px; color: var(--text-muted); background: var(--bg-secondary); padding: 3px 10px; border-radius: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 14px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--bg-hover); }
+
+        .product-name { font-weight: 600; color: var(--text-primary); }
+        .product-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        .category-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            background: var(--accent-glow);
+            color: var(--accent);
+            border: 1px solid rgba(88,166,255,0.3);
+        }
+
+        .price { font-weight: 700; color: var(--green); font-size: 15px; }
+
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .stock-badge.ok     { background: var(--green-bg);  color: var(--green);  }
+        .stock-badge.low    { background: var(--yellow-bg); color: var(--yellow); }
+        .stock-badge.out    { background: var(--red-bg);    color: var(--red);    }
+        .stock-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        .actions { display: flex; gap: 6px; }
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-view   { background: var(--accent-glow); color: var(--accent);  border-color: rgba(88,166,255,0.3); }
+        .btn-edit   { background: var(--yellow-bg);   color: var(--yellow);  border-color: rgba(210,153,34,0.3); }
+        .btn-delete { background: var(--red-bg);      color: var(--red);     border-color: rgba(248,81,73,0.3);  }
+        .btn-action:hover { transform: translateY(-1px); filter: brightness(1.2); }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+        }
+        .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 18px; color: var(--text-primary); margin-bottom: 8px; }
+        .empty-state p  { color: var(--text-muted); font-size: 14px; }
+
+        /* DELETE FORM */
+        .delete-form { display: inline; }
+        .delete-form button { background: none; border: none; padding: 0; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="{{ url_for('index') }}" class="nav-brand">
+        <span>📦</span> InventoryPro
+    </a>
+    <div class="nav-links">
+        <a href="{{ url_for('index') }}"     class="nav-link active">Dashboard</a>
+        <a href="{{ url_for('low_stock') }}" class="nav-link {% if low_stock_count > 0 %}{% endif %}">
+            ⚠️ Low Stock {% if low_stock_count > 0 %}<span style="background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:11px;margin-left:4px;">{{ low_stock_count }}</span>{% endif %}
+        </a>
+        <a href="{{ url_for('add_product') }}" class="btn-add-nav">＋ Add Product</a>
+    </div>
+</nav>
+
+<main>
+    <div class="page-header">
+        <h1>Product Inventory</h1>
+        <p>Manage your products, track stock levels, and monitor inventory value.</p>
+        <div class="db-badge">
+            <span class="dot"></span>
+            Connected: {{ db_type }} &nbsp;·&nbsp; <span style="font-family:monospace;font-size:11px;">{{ db_url }}</span>
+        </div>
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">📦</div>
+            <div class="stat-info">
+                <div class="value">{{ total_products }}</div>
+                <div class="label">Total Products</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon purple">🏷️</div>
+            <div class="stat-info">
+                <div class="value">{{ categories_used }}</div>
+                <div class="label">Categories</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">💰</div>
+            <div class="stat-info">
+                <div class="value">${{ "%.2f"|format(total_value) }}</div>
+                <div class="label">Total Inventory Value</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon yellow">⚠️</div>
+            <div class="stat-info">
+                <div class="value" style="color:{% if low_stock_count > 0 %}var(--yellow){% else %}var(--green){% endif %}">{{ low_stock_count }}</div>
+                <div class="label">Low / Out of Stock</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEARCH / FILTER TOOLBAR -->
+    <form method="GET" action="{{ url_for('index') }}">
+        <div class="toolbar">
+            <div class="search-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" name="search" class="search-input"
+                       placeholder="Search products by name…"
+                       value="{{ search }}">
+            </div>
+            <select name="category" class="filter-select">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-filter">Search</button>
+            {% if search or selected_category %}
+            <a href="{{ url_for('index') }}" class="btn-clear">✕ Clear</a>
+            {% endif %}
+        </div>
+    </form>
+
+    <!-- PRODUCT TABLE -->
+    <div class="table-container">
+        <div class="table-header">
+            <h2>Products</h2>
+            <span class="product-count">{{ products|length }} result{% if products|length != 1 %}s{% endif %}</span>
+        </div>
+
+        {% if products %}
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Total Value</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td style="color:var(--text-muted);font-size:12px;">{{ p.id }}</td>
+                    <td>
+                        <div class="product-name">{{ p.name }}</div>
+                        {% if p.description %}
+                        <div class="product-desc">{{ p.description[:60] }}{% if p.description|length > 60 %}…{% endif %}</div>
+                        {% endif %}
+                    </td>
+                    <td><span class="category-badge">{{ p.category }}</span></td>
+                    <td class="price">${{ "%.2f"|format(p.price) }}</td>
+                    <td>
+                        <span class="stock-badge {{ p.stock_status }}">
+                            {{ p.stock }} units
+                        </span>
+                    </td>
+                    <td style="color:var(--text-muted);">${{ "%.2f"|format(p.total_value) }}</td>
+                    <td>
+                        <div class="actions">
+                            <a href="{{ url_for('view_product', id=p.id) }}" class="btn-action btn-view">👁 View</a>
+                            <a href="{{ url_for('edit_product', id=p.id) }}" class="btn-action btn-edit">✏️ Edit</a>
+                            <form class="delete-form" method="POST" action="{{ url_for('delete_product', id=p.id) }}"
+                                  onsubmit="return confirm('Delete {{ p.name }}? This cannot be undone.')">
+                                <button type="submit" class="btn-action btn-delete">🗑 Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="icon">📭</div>
+            <h3>No products found</h3>
+            <p>{% if search or selected_category %}Try adjusting your search or filters.{% else %}Add your first product to get started.{% endif %}</p>
+        </div>
+        {% endif %}
+    </div>
+</main>
+</body>
+</html>
