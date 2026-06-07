@@ -155,7 +155,7 @@ exit
 
 ## 🔐 Environment Variables
 
-### Option 1: `.env` file (Recommended)
+### Option 1: `.env` file (Recommended).
 
 ```bash
 # Copy the example file
